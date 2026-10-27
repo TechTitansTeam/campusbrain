@@ -1,0 +1,7 @@
+target/
+.git/
+.mvn/
+data/
+uploads/
+*.log
+*.bat
