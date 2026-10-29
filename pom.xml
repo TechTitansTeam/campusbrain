@@ -40,6 +40,13 @@
         </dependency>
         -->
 
+        <!-- PostgreSQL Driver for Neon / Supabase / Cloud Postgres -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- H2 Database for seamless out-of-the-box local testing / dual mode -->
         <dependency>
             <groupId>com.h2database</groupId>

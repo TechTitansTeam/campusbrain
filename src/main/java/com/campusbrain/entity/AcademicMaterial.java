@@ -52,6 +52,10 @@ public class AcademicMaterial {
     @Column(name = "content_type", nullable = false, length = 100)
     private String contentType;
 
+    @Column(name = "file_data")
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARBINARY)
+    private byte[] fileData;
+
     @Column(nullable = false)
     private boolean published = true;
 
@@ -202,5 +206,13 @@ public class AcademicMaterial {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public byte[] getFileData() {
+        return fileData;
+    }
+
+    public void setFileData(byte[] fileData) {
+        this.fileData = fileData;
     }
 }

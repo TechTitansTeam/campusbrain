@@ -57,7 +57,7 @@ public class StudentMaterialController {
     @GetMapping("/{id}/view")
     public ResponseEntity<Resource> viewMaterial(@PathVariable Long id) throws IOException {
         AcademicMaterial material = materialService.getPublishedMaterial(id);
-        Resource resource = fileStorageService.loadFileAsResource(material.getStorageFilename());
+        Resource resource = materialService.loadResource(material);
 
         String filename = material.getOriginalFilename();
         String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
@@ -76,7 +76,7 @@ public class StudentMaterialController {
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> downloadMaterial(@PathVariable Long id) throws IOException {
         AcademicMaterial material = materialService.getPublishedMaterial(id);
-        Resource resource = fileStorageService.loadFileAsResource(material.getStorageFilename());
+        Resource resource = materialService.loadResource(material);
 
         String filename = material.getOriginalFilename();
         String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");

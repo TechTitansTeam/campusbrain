@@ -70,6 +70,7 @@ public class AcademicMaterialService {
             material.setFileSize(fileInfo.getFileSize());
             material.setStorageFilename(fileInfo.getStorageFilename());
             material.setContentType(fileInfo.getContentType());
+            material.setFileData(file.getBytes());
             material.setPublished(published);
 
             AcademicMaterial saved = materialRepository.save(material);
@@ -160,6 +161,7 @@ public class AcademicMaterialService {
             material.setFileSize(newFileInfo.getFileSize());
             material.setStorageFilename(newFileInfo.getStorageFilename());
             material.setContentType(newFileInfo.getContentType());
+            material.setFileData(newFile.getBytes());
 
             AcademicMaterial updated = materialRepository.save(material);
 
@@ -221,6 +223,13 @@ public class AcademicMaterialService {
             throw new NoSuchElementException("Academic material is not available or has been unpublished.");
         }
         return material;
+    }
+
+    public org.springframework.core.io.Resource loadResource(AcademicMaterial material) throws java.io.IOException {
+        if (material.getFileData() != null && material.getFileData().length > 0) {
+            return new org.springframework.core.io.ByteArrayResource(material.getFileData());
+        }
+        return fileStorageService.loadFileAsResource(material.getStorageFilename());
     }
 
     public List<MaterialResponse> listMaterials(String search, String categoryStr, String academicYear,
