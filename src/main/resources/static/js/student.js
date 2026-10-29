@@ -497,12 +497,62 @@
       <span><strong>Size:</strong> ${escapeHtml(mat.formattedFileSize)}</span>
     `;
 
-    const ext = (mat.fileExtension || '').toLowerCase();
+    const ext = (mat.fileExtension || (mat.originalFilename ? mat.originalFilename.split('.').pop() : '')).toLowerCase().replace('.', '').trim();
 
     if (ext === 'pdf') {
       // In-line PDF viewer
       modalBody.innerHTML = `
         <iframe class="preview-viewer-frame" src="${mat.viewUrl}" title="${escapeHtml(mat.title)}"></iframe>
+      `;
+    } else if (ext === 'docx') {
+      // In-line Word Document (.docx) viewer using Mammoth.js
+      modalBody.innerHTML = `
+        <div class="docx-loading-box">
+          <div class="spinner" style="width: 36px; height: 36px; border: 3px solid #E2E8F0; border-top-color: #2563EB; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <span>Rendering Word document pages...</span>
+        </div>
+      `;
+      fetch(mat.viewUrl)
+        .then(res => {
+          if (!res.ok) throw new Error('Could not load document file');
+          return res.arrayBuffer();
+        })
+        .then(buffer => {
+          if (window.mammoth) {
+            return window.mammoth.convertToHtml({ arrayBuffer: buffer });
+          } else {
+            throw new Error('Mammoth renderer not loaded');
+          }
+        })
+        .then(result => {
+          modalBody.innerHTML = `
+            <div class="docx-rendered-container">
+              <div style="border-bottom: 1px solid #E2E8F0; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; color: #2563EB; font-size: 0.95rem;">📄 Word Document View &bull; ${escapeHtml(mat.originalFilename)}</span>
+                <div style="display: flex; gap: 8px;">
+                  <a href="${mat.downloadUrl}" class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 12px;" download="${escapeHtml(mat.originalFilename)}">
+                    Download .docx
+                  </a>
+                </div>
+              </div>
+              <div class="docx-body">
+                ${result.value || '<p style="color: #94A3B8;">This document has no readable text content.</p>'}
+              </div>
+            </div>
+          `;
+        })
+        .catch(err => {
+          console.warn('In-browser docx render fallback to Google Docs:', err);
+          const absoluteDocUrl = window.location.origin + mat.viewUrl;
+          modalBody.innerHTML = `
+            <iframe class="preview-viewer-frame" src="https://docs.google.com/viewer?url=${encodeURIComponent(absoluteDocUrl)}&embedded=true" title="${escapeHtml(mat.title)}"></iframe>
+          `;
+        });
+    } else if (['pptx', 'ppt', 'xlsx', 'xls', 'doc'].includes(ext)) {
+      // Cloud Document Viewer for Office formats
+      const absoluteDocUrl = window.location.origin + mat.viewUrl;
+      modalBody.innerHTML = `
+        <iframe class="preview-viewer-frame" src="https://docs.google.com/viewer?url=${encodeURIComponent(absoluteDocUrl)}&embedded=true" title="${escapeHtml(mat.title)}"></iframe>
       `;
     } else if (ext === 'txt') {
       // Text viewer
@@ -520,7 +570,7 @@
           modalBody.querySelector('div').textContent = 'Could not preview text: ' + err.message;
         });
     } else {
-      // Office document preview card
+      // Fallback office preview box
       modalBody.innerHTML = `
         <div class="office-preview-box">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

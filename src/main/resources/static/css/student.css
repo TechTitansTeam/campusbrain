@@ -955,6 +955,82 @@ input.select-control {
   background-color: #FFFFFF;
 }
 
+.docx-rendered-container {
+  background-color: #FFFFFF;
+  color: #1E293B;
+  padding: 32px 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid #E2E8F0;
+  max-height: 520px;
+  overflow-y: auto;
+  line-height: 1.7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.docx-rendered-container h1, 
+.docx-rendered-container h2, 
+.docx-rendered-container h3, 
+.docx-rendered-container h4 {
+  color: #0F172A;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.docx-rendered-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.docx-rendered-container th, 
+.docx-rendered-container td {
+  border: 1px solid #CBD5E1;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.docx-rendered-container th {
+  background-color: #F1F5F9;
+  font-weight: 600;
+}
+
+.docx-rendered-container p {
+  margin-bottom: 12px;
+}
+
+.docx-rendered-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 12px 0;
+}
+
+.docx-rendered-container pre,
+.docx-rendered-container code {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: Consolas, Monaco, monospace;
+}
+
+.docx-rendered-container pre {
+  padding: 14px;
+  overflow-x: auto;
+}
+
+.docx-loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #64748B;
+  gap: 16px;
+}
+
 .office-preview-box {
   background-color: #F8FAFC;
   border: 2px dashed #BFDBFE;

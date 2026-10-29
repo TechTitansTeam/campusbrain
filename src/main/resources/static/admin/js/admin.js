@@ -102,6 +102,16 @@
   const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
   const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
+  // Preview Modal
+  const adminPreviewModal = document.getElementById('adminPreviewModal');
+  const adminPreviewModalTitle = document.getElementById('adminPreviewModalTitle');
+  const adminPreviewModalBadge = document.getElementById('adminPreviewModalBadge');
+  const adminPreviewModalBody = document.getElementById('adminPreviewModalBody');
+  const adminPreviewModalMeta = document.getElementById('adminPreviewModalMeta');
+  const adminPreviewDownloadBtn = document.getElementById('adminPreviewDownloadBtn');
+  const closeAdminPreviewModalBtn = document.getElementById('closeAdminPreviewModalBtn');
+  const cancelAdminPreviewBtn = document.getElementById('cancelAdminPreviewBtn');
+
   const toastContainer = document.getElementById('adminToastContainer');
 
   /**
@@ -219,6 +229,10 @@
     if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', () => closeAllModals());
     if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', () => closeAllModals());
     if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', handleDeleteConfirm);
+
+    // Preview modal close buttons
+    if (closeAdminPreviewModalBtn) closeAdminPreviewModalBtn.addEventListener('click', () => closeAllModals());
+    if (cancelAdminPreviewBtn) cancelAdminPreviewBtn.addEventListener('click', () => closeAllModals());
 
     // Close on backdrop click & ESC
     document.addEventListener('keydown', (e) => {
@@ -557,7 +571,7 @@
           </td>
           <td>
             <div style="display:flex; flex-direction:column;">
-              <span style="font-weight: 600; text-transform: uppercase;">.${escapeHtml(mat.fileExtension)}</span>
+              <span style="font-weight: 600; text-transform: uppercase;">.${escapeHtml(mat.fileExtension || (mat.originalFilename ? mat.originalFilename.split('.').pop() : 'FILE'))}</span>
               <span style="font-size: 0.75rem; color: #9CA3AF;">${escapeHtml(mat.formattedFileSize)}</span>
             </div>
           </td>
@@ -569,12 +583,12 @@
           <td>
             <div class="action-buttons">
               <!-- View / Download -->
-              <a href="/api/admin/materials/${mat.id}/view" target="_blank" class="action-btn" title="View / Preview File">
+              <button type="button" class="action-btn btn-view-admin" data-id="${mat.id}" title="View / Preview File">
                 <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                 </svg>
-              </a>
+              </button>
               <a href="/api/admin/materials/${mat.id}/download" download="${escapeHtml(mat.originalFilename)}" class="action-btn" title="Download File">
                 <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -624,6 +638,14 @@
       btn.addEventListener('click', () => {
         const id = btn.dataset.id;
         openReplaceModal(id);
+      });
+    });
+
+    materialsTableBody.querySelectorAll('.btn-view-admin').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const mat = state.materials.find(m => m.id == id);
+        if (mat) openAdminPreviewModal(mat);
       });
     });
 
@@ -797,6 +819,110 @@
     if (editModal) editModal.classList.remove('active');
     if (replaceModal) replaceModal.classList.remove('active');
     if (deleteModal) deleteModal.classList.remove('active');
+    if (adminPreviewModal) {
+      adminPreviewModal.classList.remove('active');
+      if (adminPreviewModalBody) adminPreviewModalBody.innerHTML = '';
+    }
+  }
+
+  /**
+   * Admin In-App Document Preview Modal (PDF, DOCX, TXT, Office)
+   */
+  function openAdminPreviewModal(mat) {
+    if (!adminPreviewModal) return;
+
+    if (adminPreviewModalTitle) adminPreviewModalTitle.textContent = mat.title;
+    if (adminPreviewModalBadge) {
+      adminPreviewModalBadge.textContent = mat.categoryDisplayName || mat.category;
+      adminPreviewModalBadge.className = `badge-category ${getCategoryClass(mat.category)}`;
+    }
+    if (adminPreviewDownloadBtn) {
+      adminPreviewDownloadBtn.href = `/api/admin/materials/${mat.id}/download`;
+      adminPreviewDownloadBtn.setAttribute('download', mat.originalFilename);
+    }
+    if (adminPreviewModalMeta) {
+      adminPreviewModalMeta.textContent = `${mat.subject} • ${mat.academicYear} • ${mat.semester} • ${mat.formattedFileSize}`;
+    }
+
+    const ext = (mat.fileExtension || (mat.originalFilename ? mat.originalFilename.split('.').pop() : '')).toLowerCase().replace('.', '').trim();
+    const viewUrl = `/api/admin/materials/${mat.id}/view`;
+    const downloadUrl = `/api/admin/materials/${mat.id}/download`;
+
+    if (ext === 'pdf') {
+      adminPreviewModalBody.innerHTML = `
+        <iframe class="preview-viewer-frame" src="${viewUrl}" title="${escapeHtml(mat.title)}"></iframe>
+      `;
+    } else if (ext === 'docx') {
+      adminPreviewModalBody.innerHTML = `
+        <div class="docx-loading-box">
+          <div class="spinner" style="width: 36px; height: 36px; border: 3px solid #E2E8F0; border-top-color: #2563EB; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <span>Rendering Word document pages...</span>
+        </div>
+      `;
+      authFetch(viewUrl)
+        .then(res => {
+          if (!res.ok) throw new Error('Could not load document file');
+          return res.arrayBuffer();
+        })
+        .then(buffer => {
+          if (window.mammoth) {
+            return window.mammoth.convertToHtml({ arrayBuffer: buffer });
+          } else {
+            throw new Error('Mammoth renderer not loaded');
+          }
+        })
+        .then(result => {
+          adminPreviewModalBody.innerHTML = `
+            <div class="docx-rendered-container">
+              <div style="border-bottom: 1px solid #E2E8F0; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; color: #2563EB; font-size: 0.95rem;">📄 Word Document View &bull; ${escapeHtml(mat.originalFilename)}</span>
+                <a href="${downloadUrl}" class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 12px;" download="${escapeHtml(mat.originalFilename)}">
+                  Download .docx
+                </a>
+              </div>
+              <div class="docx-body">
+                ${result.value || '<p style="color: #94A3B8;">This document has no readable text content.</p>'}
+              </div>
+            </div>
+          `;
+        })
+        .catch(err => {
+          console.warn('Docx preview fallback to Google Docs:', err);
+          const absoluteDocUrl = window.location.origin + viewUrl;
+          adminPreviewModalBody.innerHTML = `
+            <iframe class="preview-viewer-frame" src="https://docs.google.com/viewer?url=${encodeURIComponent(absoluteDocUrl)}&embedded=true" title="${escapeHtml(mat.title)}"></iframe>
+          `;
+        });
+    } else if (['pptx', 'ppt', 'xlsx', 'xls', 'doc'].includes(ext)) {
+      const absoluteDocUrl = window.location.origin + viewUrl;
+      adminPreviewModalBody.innerHTML = `
+        <iframe class="preview-viewer-frame" src="https://docs.google.com/viewer?url=${encodeURIComponent(absoluteDocUrl)}&embedded=true" title="${escapeHtml(mat.title)}"></iframe>
+      `;
+    } else if (ext === 'txt') {
+      adminPreviewModalBody.innerHTML = `
+        <div style="background-color: #0F172A; border-radius: 8px; padding: 20px; font-family: monospace; white-space: pre-wrap; color: #E2E8F0; max-height: 480px; overflow-y: auto;">
+          Loading text preview...
+        </div>
+      `;
+      authFetch(viewUrl)
+        .then(r => r.text())
+        .then(text => {
+          adminPreviewModalBody.querySelector('div').textContent = text;
+        })
+        .catch(err => {
+          adminPreviewModalBody.querySelector('div').textContent = 'Could not preview text: ' + err.message;
+        });
+    } else {
+      adminPreviewModalBody.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+          <h4 style="margin-bottom: 8px;">${escapeHtml(mat.originalFilename)}</h4>
+          <p style="color: #94A3B8; margin-bottom: 20px;">${escapeHtml(mat.fileFormat)} (${escapeHtml(mat.formattedFileSize)})</p>
+          <a href="${downloadUrl}" class="btn btn-primary" download="${escapeHtml(mat.originalFilename)}">Download File</a>
+        </div>
+      `;
+    }
+
+    adminPreviewModal.classList.add('active');
   }
 
   /**

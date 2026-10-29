@@ -482,9 +482,39 @@
     </div>
   </div>
 
+  <!-- In-App Document Preview Modal -->
+  <div class="admin-modal-overlay" id="adminPreviewModal">
+    <div class="admin-modal-card" style="max-width: 950px; width: 95%;">
+      <div class="modal-title-row">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: #38BDF8;" id="adminPreviewModalTitle">Document Preview</h3>
+          <span class="badge-category" id="adminPreviewModalBadge" style="font-size: 0.75rem;"></span>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeAdminPreviewModalBtn">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div id="adminPreviewModalBody" style="margin: 16px 0; max-height: 540px; overflow-y: auto;">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px; margin-top: 10px;">
+        <span id="adminPreviewModalMeta" style="font-size: 0.8rem; color: #94A3B8;"></span>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn btn-secondary" id="cancelAdminPreviewBtn">Close</button>
+          <a href="#" class="btn btn-primary" id="adminPreviewDownloadBtn" download>Download File</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div class="admin-toast-container" id="adminToastContainer"></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
   <script src="/admin/js/admin.js"></script>
 </body>
 </html>
