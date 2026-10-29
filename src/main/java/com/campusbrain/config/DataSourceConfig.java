@@ -68,6 +68,11 @@ public class DataSourceConfig {
                         int port = uri.getPort() > 0 ? uri.getPort() : 5432;
                         String path = uri.getPath(); // "/neondb"
                         String query = uri.getQuery();
+                        if (query != null) {
+                            query = query.replace("channel_binding=require", "").replace("&&", "&");
+                            if (query.endsWith("&")) query = query.substring(0, query.length() - 1);
+                            if (query.startsWith("&")) query = query.substring(1);
+                        }
                         String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + path;
                         if (query != null && !query.isEmpty()) {
                             jdbcUrl += "?" + query;
