@@ -9,12 +9,12 @@
 
 ---
 
-## 🌐 Live Production Links
+## 🌐 Live Production Access
 
-| Portal | URL | Description |
+| Portal | Access | Description |
 | :--- | :--- | :--- |
 | **🎓 Student Portal** | [campusbrain-pragatiuniversity.onrender.com](https://campusbrain-pragatiuniversity.onrender.com) | Direct access for CSE students (No login required) |
-| **🛠️ Admin / Upload Portal** | [campusbrain-pragatiuniversity.onrender.com/upload](https://campusbrain-pragatiuniversity.onrender.com/upload) | Faculty & administrator resource management |
+| **🔒 Resource Uploads** | *The files will be uploaded by the admin* | Curated academic repository management |
 
 ---
 
@@ -44,8 +44,8 @@
 
 ---
 
-### 3. Faculty & Admin Management Console (`/upload` & `/admin`)
-- **Direct Upload Portal**: Quick-access resource upload page for department faculty and teaching assistants.
+### 3. Administrative Resource Management
+- **Curated Ingestion**: The files will be uploaded by the admin.
 - **Automatic File Analysis**: Automatically detects file format (`.pdf`, `.docx`, `.pptx`, `.xlsx`, `.txt`), file size, and clean original filenames upon file selection.
 - **Overview Statistics Dashboard**:
   - Total Materials, Published Materials, Draft Materials, and category breakdown counters with real-time updates.
@@ -104,8 +104,7 @@ Or on Linux/macOS:
 
 ### 3. Access in Browser
 - **Student Dashboard**: [http://localhost:8080/](http://localhost:8080/)
-- **Faculty / Upload Portal**: [http://localhost:8080/upload](http://localhost:8080/upload)
-- **Admin Management Console**: [http://localhost:8080/admin](http://localhost:8080/admin)
+> *Note: The files will be uploaded by the admin.*
 
 ---
 
