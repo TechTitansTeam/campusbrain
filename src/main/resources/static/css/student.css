@@ -161,7 +161,7 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #2563EB;
+  color: #1E3A8A;
 }
 
 .nav-center {
@@ -263,10 +263,12 @@ body {
 }
 
 .hero-title span {
-  color: #2563EB;
-  background: linear-gradient(135deg, #1E40AF, #2563EB);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #1E3A8A; /* Solid Deep Navy Blue */
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: initial;
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
 }
 
 .hero-subtitle {
@@ -307,7 +309,7 @@ body {
 .search-icon {
   width: 22px;
   height: 22px;
-  color: #2563EB;
+  color: #1E3A8A;
   flex-shrink: 0;
   margin-right: 12px;
 }
@@ -578,7 +580,7 @@ input.select-control {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2563EB;
+  color: #1E3A8A;
   transition: opacity 0.15s ease;
 }
 
@@ -1042,7 +1044,7 @@ input.select-control {
 .office-preview-box svg {
   width: 64px;
   height: 64px;
-  color: #2563EB;
+  color: #1E3A8A;
   margin-bottom: 16px;
 }
 
@@ -1128,10 +1130,10 @@ input.select-control {
 }
 
 .features-title span {
-  color: #2563EB;
-  background: linear-gradient(135deg, #1E40AF, #2563EB);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #1E3A8A;
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: initial;
 }
 
 .features-subtitle {
