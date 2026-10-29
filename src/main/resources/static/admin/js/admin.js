@@ -240,6 +240,7 @@
       uploadSection.classList.remove('active');
       manageSection.classList.add('active');
       if (topbarTitle) topbarTitle.textContent = 'Manage Academic Materials';
+      refreshStats();
       loadMaterials();
     }
   }
@@ -399,24 +400,67 @@
   }
 
   /**
-   * Refresh Stats Cards
+   * Helper: Update stat display counters from a stats object
+   */
+  function applyStatsToUi(stats) {
+    if (!stats) return;
+    if (statTotal) statTotal.textContent = stats.totalMaterials != null ? stats.totalMaterials : 0;
+    if (statPublished) statPublished.textContent = stats.totalPublished != null ? stats.totalPublished : 0;
+    if (statDraft) statDraft.textContent = stats.totalUnpublished != null ? stats.totalUnpublished : 0;
+    if (statNotes) statNotes.textContent = stats.totalNotes != null ? stats.totalNotes : 0;
+    if (statLab) statLab.textContent = stats.totalLabManuals != null ? stats.totalLabManuals : 0;
+    if (statAssign) statAssign.textContent = stats.totalAssignments != null ? stats.totalAssignments : 0;
+    if (statPapers) statPapers.textContent = stats.totalQuestionPapers != null ? stats.totalQuestionPapers : 0;
+  }
+
+  /**
+   * Fallback: Compute and display stats directly from the loaded materials array
+   */
+  function updateStatsFromMaterials(materials) {
+    if (!Array.isArray(materials)) return;
+    const total = materials.length;
+    const published = materials.filter(m => m.published === true).length;
+    const draft = total - published;
+    const notes = materials.filter(m => m.category === 'NOTES').length;
+    const labs = materials.filter(m => m.category === 'LAB_MANUAL').length;
+    const assignments = materials.filter(m => m.category === 'ASSIGNMENT').length;
+    const papers = materials.filter(m => m.category === 'PREVIOUS_QUESTION_PAPER').length;
+
+    applyStatsToUi({
+      totalMaterials: total,
+      totalPublished: published,
+      totalUnpublished: draft,
+      totalNotes: notes,
+      totalLabManuals: labs,
+      totalAssignments: assignments,
+      totalQuestionPapers: papers
+    });
+  }
+
+  /**
+   * Refresh Stats Cards from Backend API
    */
   async function refreshStats() {
     try {
-      const res = await authFetch('/api/admin/stats');
-      if (!res.ok) return;
+      let res = await authFetch('/api/admin/materials/stats');
+      if (!res.ok) {
+        res = await authFetch('/api/admin/stats');
+      }
+      if (!res.ok) {
+        // Fallback to local materials if available
+        if (state.materials && state.materials.length > 0) {
+          updateStatsFromMaterials(state.materials);
+        }
+        return;
+      }
       const stats = await res.json();
       state.stats = stats;
-
-      if (statTotal) statTotal.textContent = stats.totalMaterials;
-      if (statPublished) statPublished.textContent = stats.totalPublished;
-      if (statDraft) statDraft.textContent = stats.totalUnpublished;
-      if (statNotes) statNotes.textContent = stats.totalNotes;
-      if (statLab) statLab.textContent = stats.totalLabManuals;
-      if (statAssign) statAssign.textContent = stats.totalAssignments;
-      if (statPapers) statPapers.textContent = stats.totalQuestionPapers;
+      applyStatsToUi(stats);
     } catch (err) {
       console.warn('Could not refresh stats:', err);
+      if (state.materials && state.materials.length > 0) {
+        updateStatsFromMaterials(state.materials);
+      }
     }
   }
 
@@ -429,6 +473,8 @@
       if (!res.ok) return;
       const data = await res.json();
       state.materials = data;
+      // Immediately sync stats from loaded materials as well
+      updateStatsFromMaterials(data);
       renderMaterialsTable();
     } catch (err) {
       console.error('Failed to load materials table:', err);
