@@ -1,4 +1,4 @@
-# CampusBrain – Pragati University CSE Academic Platform
+# CampusBrain – PRAGATI UNIVERSITY CSE Academic Platform
 
 [![Live Service](https://img.shields.io/badge/Render-24%2F7%20Live-brightgreen?logo=render&style=flat-square)](https://campusbrain-pragatiuniversity.onrender.com)
 [![Database](https://img.shields.io/badge/Neon-Cloud%20PostgreSQL-00E599?logo=postgresql&style=flat-square)](https://neon.tech)
